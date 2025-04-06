@@ -1,13 +1,18 @@
 import { MantineProvider } from '@mantine/core';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { SupabaseProvider } from './contexts/SupabaseContext';
 import { GoalDashboard } from './components/GoalDashboard';
-import { Auth } from './components/Auth';
+import { LandingPage } from './components/LandingPage';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { Contact } from './components/Contact';
+import { Layout } from './components/Layout';
 import { useSupabase } from './hooks/useSupabase';
 import { useEffect, useState } from 'react';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import './index.css';
 
-function AppContent() {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { supabase } = useSupabase();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -31,20 +36,34 @@ function AppContent() {
     return <div>Loading...</div>;
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {!user ? <Auth /> : <GoalDashboard />}
-    </div>
-  );
+  return user ? children : <Navigate to="/" replace />;
 }
 
 function App() {
   return (
-    <MantineProvider>
-      <SupabaseProvider>
-        <AppContent />
-      </SupabaseProvider>
-    </MantineProvider>
+    <SupabaseProvider>
+      <MantineProvider
+        defaultColorScheme="light"
+        theme={{
+          primaryColor: 'blue',
+        }}
+      >
+        <div style={{ backgroundColor: 'white', minHeight: '100vh' }}>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <GoalDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </Layout>
+        </div>
+      </MantineProvider>
+    </SupabaseProvider>
   );
 }
 
