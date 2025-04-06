@@ -83,6 +83,15 @@ export function GoalDashboard() {
     fetchGoals();
   };
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   if (loading) {
     return <div>Loading goals...</div>;
   }
@@ -91,7 +100,12 @@ export function GoalDashboard() {
     <Stack gap="xl">
       <Group justify="space-between">
         <Title order={2}>Your Goals</Title>
-        <Button onClick={open}>Add New Goal</Button>
+        <Group>
+          <Button onClick={open}>Add New Goal</Button>
+          <Button variant="light" color="red" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Group>
       </Group>
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
