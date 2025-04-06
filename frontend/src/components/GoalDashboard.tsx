@@ -13,6 +13,7 @@ interface Goal {
   target_value: number;
   start_date: string;
   current_value?: number;
+  previous_value?: number;
 }
 
 export function GoalDashboard() {
@@ -33,53 +34,81 @@ export function GoalDashboard() {
 
       if (error) throw error;
 
-      // For each goal, calculate the current progress
+      // For each goal, calculate the current and previous progress
       const goalsWithProgress = await Promise.all(
         (goalsData || []).map(async (goal) => {
           let current_value = 0;
+          let previous_value = 0;
 
           // Get the start date for the current period
           const now = new Date();
-          let periodStart = new Date(goal.start_date);
+          let currentPeriodStart = new Date(goal.start_date);
+          let previousPeriodStart = new Date(goal.start_date);
+          let previousPeriodEnd;
           
           switch (goal.period) {
             case 'yearly':
-              periodStart = new Date(now.getFullYear(), 0, 1);
+              currentPeriodStart = new Date(now.getFullYear(), 0, 1);
+              previousPeriodStart = new Date(now.getFullYear() - 1, 0, 1);
+              previousPeriodEnd = new Date(now.getFullYear() - 1, 11, 31);
               break;
             case 'monthly':
-              periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              previousPeriodStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+              previousPeriodEnd = new Date(now.getFullYear(), now.getMonth(), 0);
               break;
             case 'weekly':
               // Get the start of the current week (Sunday)
               const day = now.getDay();
-              periodStart = new Date(now);
-              periodStart.setDate(now.getDate() - day);
-              periodStart.setHours(0, 0, 0, 0);
+              currentPeriodStart = new Date(now);
+              currentPeriodStart.setDate(now.getDate() - day);
+              currentPeriodStart.setHours(0, 0, 0, 0);
+              
+              // Get the previous week
+              previousPeriodStart = new Date(currentPeriodStart);
+              previousPeriodStart.setDate(previousPeriodStart.getDate() - 7);
+              previousPeriodEnd = new Date(currentPeriodStart);
+              previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1);
               break;
           }
 
           // Query workouts for the current period
-          const { data: workouts, error: workoutsError } = await supabase
+          const { data: currentWorkouts, error: currentWorkoutsError } = await supabase
             .from('workouts')
             .select('meters')
-            .gte('workout_date', periodStart.toISOString().split('T')[0]);
+            .gte('workout_date', currentPeriodStart.toISOString().split('T')[0]);
 
-          if (workoutsError) {
-            console.error('Error fetching workouts:', workoutsError);
-            return { ...goal, current_value: 0 };
+          if (currentWorkoutsError) {
+            console.error('Error fetching current workouts:', currentWorkoutsError);
+            return { ...goal, current_value: 0, previous_value: 0 };
+          }
+
+          // Query workouts for the previous period
+          const { data: previousWorkouts, error: previousWorkoutsError } = await supabase
+            .from('workouts')
+            .select('meters')
+            .gte('workout_date', previousPeriodStart.toISOString().split('T')[0])
+            .lte('workout_date', previousPeriodEnd.toISOString().split('T')[0]);
+
+          if (previousWorkoutsError) {
+            console.error('Error fetching previous workouts:', previousWorkoutsError);
+            return { ...goal, current_value: 0, previous_value: 0 };
           }
 
           if (goal.type === 'meters') {
             // Sum up all meters
-            current_value = workouts?.reduce((sum, workout) => sum + (workout.meters || 0), 0) || 0;
+            current_value = currentWorkouts?.reduce((sum, workout) => sum + (workout.meters || 0), 0) || 0;
+            previous_value = previousWorkouts?.reduce((sum, workout) => sum + (workout.meters || 0), 0) || 0;
           } else if (goal.type === 'workouts') {
             // Count number of workouts
-            current_value = workouts?.length || 0;
+            current_value = currentWorkouts?.length || 0;
+            previous_value = previousWorkouts?.length || 0;
           }
 
           return {
             ...goal,
             current_value,
+            previous_value,
           };
         })
       );
