@@ -32,6 +32,37 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     return `${percent.toFixed(1)}%`;
   };
 
+  const getTimeProgress = () => {
+    const now = new Date();
+    let periodStart: Date;
+    let periodEnd: Date;
+
+    switch (goal.period) {
+      case 'yearly':
+        periodStart = new Date(now.getFullYear(), 0, 1); // January 1st
+        periodEnd = new Date(now.getFullYear() + 1, 0, 1); // Next January 1st
+        break;
+      case 'monthly':
+        periodStart = new Date(now.getFullYear(), now.getMonth(), 1); // 1st of current month
+        periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1); // 1st of next month
+        break;
+      case 'weekly':
+        const day = now.getDay();
+        periodStart = new Date(now); // Clone current date
+        periodStart.setDate(now.getDate() - day); // Go back to Sunday
+        periodStart.setHours(0, 0, 0, 0);
+        periodEnd = new Date(periodStart);
+        periodEnd.setDate(periodStart.getDate() + 7); // Next Sunday
+        break;
+      default:
+        return 0;
+    }
+
+    const totalTime = periodEnd.getTime() - periodStart.getTime();
+    const elapsedTime = now.getTime() - periodStart.getTime();
+    return (elapsedTime / totalTime) * 100;
+  };
+
   const getProgressColor = (value?: number) => {
     if (!value) return 'gray.3'; // No progress
     const percent = (value / goal.target_value) * 100;
@@ -58,6 +89,8 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     }
   };
 
+  const timeProgress = getTimeProgress();
+
   return (
     <Card withBorder padding="md" radius="md">
       <Card.Section withBorder inheritPadding py="xs">
@@ -74,7 +107,12 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
       <Stack gap="md" mt="md">
         {/* Current Period */}
         <Stack gap="xs">
-          <Text size="sm" fw={500}>{getPeriodLabel(goal.period)}</Text>
+          <Group justify="space-between">
+            <Text size="sm" fw={500}>{getPeriodLabel(goal.period)}</Text>
+            <Text size="sm" c="dimmed">
+              {timeProgress.toFixed(1)}% elapsed
+            </Text>
+          </Group>
           <Group justify="space-between">
             <Text size="sm">Progress</Text>
             <Group gap="xs">
