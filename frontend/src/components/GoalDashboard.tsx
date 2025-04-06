@@ -44,7 +44,7 @@ export function GoalDashboard() {
           const now = new Date();
           let currentPeriodStart = new Date(goal.start_date);
           let previousPeriodStart = new Date(goal.start_date);
-          let previousPeriodEnd;
+          let previousPeriodEnd = new Date(goal.start_date);
           
           switch (goal.period) {
             case 'yearly':
@@ -236,7 +236,11 @@ export function GoalDashboard() {
         title={editingGoal ? "Edit Goal" : "Create New Goal"}
         size="lg"
       >
-        <GoalForm onSuccess={handleFormClose} editingGoalId={editingGoal} />
+        <GoalForm 
+          onSuccess={handleFormClose} 
+          editingGoalId={editingGoal}
+          refreshGoals={fetchGoals}
+        />
       </Modal>
     </Stack>
   );

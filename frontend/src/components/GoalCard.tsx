@@ -26,6 +26,24 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     return value.toString();
   };
 
+  const formatProgress = (value?: number) => {
+    if (!value) return '0%';
+    const percent = (value / goal.target_value) * 100;
+    return `${percent.toFixed(1)}%`;
+  };
+
+  const getProgressColor = (value?: number) => {
+    if (!value) return 'gray.3'; // No progress
+    const percent = (value / goal.target_value) * 100;
+    
+    if (percent >= 100) return 'green.7'; // Goal achieved
+    if (percent >= 80) return 'blue.9';
+    if (percent >= 60) return 'blue.7';
+    if (percent >= 40) return 'blue.5';
+    if (percent >= 20) return 'blue.3';
+    return 'gray.5'; // Less than 20%
+  };
+
   const getPeriodLabel = (period: string, isPrevious = false) => {
     const prefix = isPrevious ? 'Last ' : 'This ';
     switch (period) {
@@ -59,11 +77,21 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           <Text size="sm" fw={500}>{getPeriodLabel(goal.period)}</Text>
           <Group justify="space-between">
             <Text size="sm">Progress</Text>
-            <Text size="sm" fw={500}>
-              {formatValue(goal.current_value || 0)}
-            </Text>
+            <Group gap="xs">
+              <Text size="sm" fw={500} c={getProgressColor(goal.current_value)}>
+                {formatValue(goal.current_value || 0)}
+              </Text>
+              <Text size="sm" c="dimmed">
+                ({formatProgress(goal.current_value)})
+              </Text>
+            </Group>
           </Group>
-          <Progress value={currentProgress} size="md" radius="xl" />
+          <Progress 
+            value={currentProgress} 
+            size="md" 
+            radius="xl"
+            color={getProgressColor(goal.current_value)}
+          />
         </Stack>
 
         {/* Previous Period */}
@@ -71,11 +99,21 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           <Text size="sm" fw={500}>{getPeriodLabel(goal.period, true)}</Text>
           <Group justify="space-between">
             <Text size="sm">Progress</Text>
-            <Text size="sm" fw={500}>
-              {formatValue(goal.previous_value || 0)}
-            </Text>
+            <Group gap="xs">
+              <Text size="sm" fw={500} c={getProgressColor(goal.previous_value)}>
+                {formatValue(goal.previous_value || 0)}
+              </Text>
+              <Text size="sm" c="dimmed">
+                ({formatProgress(goal.previous_value)})
+              </Text>
+            </Group>
           </Group>
-          <Progress value={previousProgress} size="md" radius="xl" color="gray.5" />
+          <Progress 
+            value={previousProgress} 
+            size="md" 
+            radius="xl" 
+            color={getProgressColor(goal.previous_value)}
+          />
         </Stack>
         
         <Group justify="flex-end" gap="xs">

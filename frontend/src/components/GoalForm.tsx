@@ -17,9 +17,10 @@ interface GoalFormValues {
 interface GoalFormProps {
   editingGoalId?: string | null;
   onSuccess?: () => void;
+  refreshGoals: () => Promise<void>;
 }
 
-export function GoalForm({ editingGoalId, onSuccess }: GoalFormProps) {
+export function GoalForm({ editingGoalId, onSuccess, refreshGoals }: GoalFormProps) {
   const { supabase } = useSupabase();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -77,6 +78,7 @@ export function GoalForm({ editingGoalId, onSuccess }: GoalFormProps) {
     try {
       setError(null);
       setSuccess(null);
+      setLoading(true);
 
       // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
@@ -116,11 +118,14 @@ export function GoalForm({ editingGoalId, onSuccess }: GoalFormProps) {
       }
       
       setSuccess('Goal saved successfully!');
+      await refreshGoals(); // Refresh the goals list
       form.reset();
       onSuccess?.();
     } catch (error) {
       console.error('Error saving goal:', error);
       setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
