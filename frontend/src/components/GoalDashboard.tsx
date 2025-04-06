@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { SimpleGrid, Button, Group, Title, Stack, Modal } from '@mantine/core';
+import { SimpleGrid, Button, Group, Title, Stack, Modal, Alert } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { IconRefresh } from '@tabler/icons-react';
 import { GoalCard } from './GoalCard';
 import { GoalForm } from './GoalForm';
 import { useSupabase } from '../hooks/useSupabase';
@@ -18,6 +19,8 @@ export function GoalDashboard() {
   const { supabase } = useSupabase();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
   const [editingGoal, setEditingGoal] = useState<string | null>(null);
 
@@ -35,9 +38,45 @@ export function GoalDashboard() {
         (goalsData || []).map(async (goal) => {
           let current_value = 0;
 
-          // TODO: Replace with actual progress calculation based on workout data
-          // This is where we'll integrate with the Concept2 API to get actual meters/workouts
+          // Get the start date for the current period
+          const now = new Date();
+          let periodStart = new Date(goal.start_date);
           
+          switch (goal.period) {
+            case 'yearly':
+              periodStart = new Date(now.getFullYear(), 0, 1);
+              break;
+            case 'monthly':
+              periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+              break;
+            case 'weekly':
+              // Get the start of the current week (Sunday)
+              const day = now.getDay();
+              periodStart = new Date(now);
+              periodStart.setDate(now.getDate() - day);
+              periodStart.setHours(0, 0, 0, 0);
+              break;
+          }
+
+          // Query workouts for the current period
+          const { data: workouts, error: workoutsError } = await supabase
+            .from('workouts')
+            .select('meters')
+            .gte('workout_date', periodStart.toISOString().split('T')[0]);
+
+          if (workoutsError) {
+            console.error('Error fetching workouts:', workoutsError);
+            return { ...goal, current_value: 0 };
+          }
+
+          if (goal.type === 'meters') {
+            // Sum up all meters
+            current_value = workouts?.reduce((sum, workout) => sum + (workout.meters || 0), 0) || 0;
+          } else if (goal.type === 'workouts') {
+            // Count number of workouts
+            current_value = workouts?.length || 0;
+          }
+
           return {
             ...goal,
             current_value,
@@ -50,6 +89,36 @@ export function GoalDashboard() {
       console.error('Error fetching goals:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSync = async () => {
+    try {
+      setSyncing(true);
+      setSyncError(null);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
+      // Calculate start date (beginning of current year)
+      const startDate = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0];
+
+      const { data, error } = await supabase.functions.invoke('sync-workouts', {
+        body: {
+          user_id: user.id,
+          start_date: startDate
+        }
+      });
+
+      if (error) throw error;
+
+      console.log('Sync successful:', data);
+      await fetchGoals(); // Refresh goals to show updated progress
+    } catch (error) {
+      console.error('Error syncing workouts:', error);
+      setSyncError('Failed to sync workouts. Please try again.');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -80,7 +149,6 @@ export function GoalDashboard() {
   const handleFormClose = () => {
     setEditingGoal(null);
     close();
-    fetchGoals();
   };
 
   const handleLogout = async () => {
@@ -101,12 +169,26 @@ export function GoalDashboard() {
       <Group justify="space-between">
         <Title order={2}>Your Goals</Title>
         <Group>
+          <Button 
+            onClick={handleSync} 
+            loading={syncing}
+            leftSection={<IconRefresh size={20} />}
+            variant="light"
+          >
+            Sync Workouts
+          </Button>
           <Button onClick={open}>Add New Goal</Button>
           <Button variant="light" color="red" onClick={handleLogout}>
             Logout
           </Button>
         </Group>
       </Group>
+
+      {syncError && (
+        <Alert color="red" title="Sync Error" onClose={() => setSyncError(null)} withCloseButton>
+          {syncError}
+        </Alert>
+      )}
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
         {goals.map((goal) => (

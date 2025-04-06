@@ -7,21 +7,47 @@ export function AuthCallback() {
   const { supabase } = useSupabase();
 
   useEffect(() => {
-    // Handle the OAuth callback
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        // Successfully authenticated, redirect to root
+    const handleCallback = async () => {
+      try {
+        // Get the session which includes the provider token
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session) {
+          throw new Error('No session found');
+        }
+
+        // Get the provider refresh token from the session
+        const providerToken = session.provider_token;
+        const refreshToken = session.provider_refresh_token;
+
+        if (!refreshToken) {
+          throw new Error('No refresh token found in session');
+        }
+
+        // Store the refresh token
+        const { error: tokenError } = await supabase
+          .from('user_tokens')
+          .upsert({
+            user_id: session.user.id,
+            concept2_refresh_token: refreshToken,
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (tokenError) {
+          throw tokenError;
+        }
+
+        // Successfully stored token, redirect to root
         navigate('/', { replace: true });
-      } else {
-        // No session found, redirect back to login
-        console.error('No session found after auth callback');
+      } catch (error) {
+        console.error('Error in auth callback:', error);
         navigate('/');
       }
-    }).catch((error) => {
-      console.error('Error in auth callback:', error);
-      navigate('/');
-    });
-  }, [navigate, supabase.auth]);
+    };
+
+    handleCallback();
+  }, [navigate, supabase]);
 
   return (
     <div>Completing login...</div>
