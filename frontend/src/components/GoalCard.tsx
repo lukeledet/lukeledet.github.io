@@ -89,6 +89,11 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     }
   };
 
+  const getGoalTypeLabel = () => {
+    const periodLabel = goal.period.charAt(0).toUpperCase() + goal.period.slice(1);
+    return `${periodLabel} ${goal.type === 'meters' ? 'Distance' : 'Workout'} Goal`;
+  };
+
   const timeProgress = getTimeProgress();
 
   return (
@@ -96,7 +101,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
       <Card.Section withBorder inheritPadding py="xs">
         <Group justify="space-between">
           <Text fw={500} size="lg">
-            {goal.type === 'meters' ? 'Distance Goal' : 'Workout Goal'}
+            {getGoalTypeLabel()}
           </Text>
           <Text size="sm" c="dimmed">
             Target: {formatValue(goal.target_value)}

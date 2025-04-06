@@ -110,7 +110,7 @@ export function GoalForm({ editingGoalId, onSuccess, refreshGoals }: GoalFormPro
 
       if (error) {
         if (error.code === '23505') { // Unique violation
-          setError(`You already have a ${values.period} goal set. Please delete or update the existing one.`);
+          setError(`You already have a ${values.period} ${values.type} goal set. Please delete or update the existing one.`);
         } else {
           setError(error.message);
         }
