@@ -39,9 +39,37 @@ export function GoalForm({ editingGoalId, onSuccess, refreshGoals }: GoalFormPro
     },
   });
 
+  const getDefaultStartDate = (period: GoalPeriod) => {
+    const now = new Date();
+    switch (period) {
+      case 'yearly':
+        return new Date(now.getFullYear(), 0, 1); // January 1st
+      case 'monthly':
+        return new Date(now.getFullYear(), now.getMonth(), 1); // First of current month
+      case 'weekly':
+        const day = now.getDay();
+        const startDate = new Date(now);
+        startDate.setDate(now.getDate() - day); // Go back to Sunday
+        startDate.setHours(0, 0, 0, 0);
+        return startDate;
+      default:
+        return now;
+    }
+  };
+
+  // Update start date when period changes
+  useEffect(() => {
+    if (!editingGoalId) { // Only auto-update if not editing
+      form.setFieldValue('startDate', getDefaultStartDate(form.values.period));
+    }
+  }, [form.values.period]);
+
   useEffect(() => {
     if (editingGoalId) {
       fetchGoal();
+    } else {
+      // Set initial start date based on default period
+      form.setFieldValue('startDate', getDefaultStartDate(form.values.period));
     }
   }, [editingGoalId]);
 
