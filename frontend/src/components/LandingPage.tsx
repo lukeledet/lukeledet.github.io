@@ -10,7 +10,7 @@ export function LandingPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'keycloak',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           scopes: 'user:read results:read',
         }
       });

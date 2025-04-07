@@ -5,6 +5,7 @@ import { GoalDashboard } from './components/GoalDashboard';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { Contact } from './components/Contact';
+import { AuthCallback } from './components/AuthCallback'; // Import AuthCallback
 import { Layout } from './components/Layout';
 import { useSupabase } from './hooks/useSupabase';
 import { useEffect, useState } from 'react';
@@ -59,6 +60,7 @@ function App() {
               } />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/auth/callback" element={<AuthCallback />} /> {/* Add route for AuthCallback */}
             </Routes>
           </Layout>
         </div>

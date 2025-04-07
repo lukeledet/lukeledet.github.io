@@ -39,7 +39,7 @@ export function AuthCallback() {
         }
 
         // Successfully stored token, redirect to root
-        navigate('/', { replace: true });
+        navigate('/dashboard', { replace: true });
       } catch (error) {
         console.error('Error in auth callback:', error);
         navigate('/');
