@@ -101,7 +101,8 @@ serve(async (req)=>{
       return {
         id: workout.id,
         date: workout.date,
-        meters: workoutMeters + restMeters
+        workout_meters: workoutMeters,
+        rest_meters: restMeters
       };
     });
     // Store workouts in database
@@ -112,7 +113,8 @@ serve(async (req)=>{
           user_id,
           concept2_id: workout.id,
           workout_date: workout.date,
-          meters: workout.meters
+          workout_meters: workout.workout_meters,
+          rest_meters: workout.rest_meters
         })),
         {
           onConflict: 'user_id,concept2_id'

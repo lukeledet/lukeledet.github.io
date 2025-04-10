@@ -50,7 +50,7 @@ export function GoalDashboard() {
             case 'yearly':
               currentPeriodStart = new Date(now.getFullYear(), 0, 1);
               previousPeriodStart = new Date(now.getFullYear() - 1, 0, 1);
-              previousPeriodEnd = new Date(now.getFullYear() - 1, 11, 31);
+              previousPeriodEnd = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
               break;
             case 'monthly':
               currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -75,7 +75,7 @@ export function GoalDashboard() {
           // Query workouts for the current period
           const { data: currentWorkouts, error: currentWorkoutsError } = await supabase
             .from('workouts')
-            .select('meters')
+            .select('workout_meters, rest_meters')
             .gte('workout_date', currentPeriodStart.toISOString().split('T')[0]);
 
           if (currentWorkoutsError) {
@@ -86,7 +86,7 @@ export function GoalDashboard() {
           // Query workouts for the previous period
           const { data: previousWorkouts, error: previousWorkoutsError } = await supabase
             .from('workouts')
-            .select('meters')
+            .select('workout_meters, rest_meters')
             .gte('workout_date', previousPeriodStart.toISOString().split('T')[0])
             .lte('workout_date', previousPeriodEnd.toISOString().split('T')[0]);
 
@@ -96,9 +96,9 @@ export function GoalDashboard() {
           }
 
           if (goal.type === 'meters') {
-            // Sum up all meters
-            current_value = currentWorkouts?.reduce((sum, workout) => sum + (workout.meters || 0), 0) || 0;
-            previous_value = previousWorkouts?.reduce((sum, workout) => sum + (workout.meters || 0), 0) || 0;
+            // Sum up workout and rest meters
+            current_value = currentWorkouts?.reduce((sum, workout) => sum + (workout.workout_meters || 0) + (workout.rest_meters || 0), 0) || 0;
+            previous_value = previousWorkouts?.reduce((sum, workout) => sum + (workout.workout_meters || 0) + (workout.rest_meters || 0), 0) || 0;
           } else if (goal.type === 'workouts') {
             // Count number of workouts
             current_value = currentWorkouts?.length || 0;
