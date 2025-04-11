@@ -1,4 +1,4 @@
-import { Container, Group, Text, Stack, Anchor, Box, Paper } from '@mantine/core';
+import { Container, Group, Text, Anchor, Box, Paper } from '@mantine/core';
 
 interface LayoutProps {
   children: React.ReactNode;

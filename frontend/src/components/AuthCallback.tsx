@@ -16,7 +16,6 @@ export function AuthCallback() {
         }
 
         // Get the provider refresh token from the session
-        const providerToken = session.provider_token;
         const refreshToken = session.provider_refresh_token;
 
         if (!refreshToken) {

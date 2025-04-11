@@ -1,4 +1,4 @@
-import { Card, Text, Progress, Group, Stack, ActionIcon, Grid } from '@mantine/core';
+import { Card, Text, Progress, Group, Stack, ActionIcon } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 
 interface GoalCardProps {
