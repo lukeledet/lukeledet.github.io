@@ -1,5 +1,54 @@
 # Rowing Goals
 
-This repo is an experiment in testing different LLMs and tools for creating a basic web application to track rowing goals. There will be different branches for different tools, LLMs, prompting approaches and tech stacks.
+A web application that allows users to set and track rowing goals using their Concept2 account data.
 
-To start a new experiment, create a new branch off of the `clean` branch with this format: tool-model[-approach] where approach is optional. The `clean` branch has an empty README so it doesn't confuse the model.
+## Features
+
+- OAuth2 authentication with Concept2 logbook
+- User goal setting and tracking
+- Integration with Concept2 workout data
+
+## Setup
+
+### Prerequisites
+
+1. Node.js and npm installed
+2. Supabase account
+3. Concept2 API access (register at log.concept2.com/developers)
+
+### Development Setup
+
+1. Backend setup:
+```bash
+cd backend
+npm install
+cp .env.example .env  # Configure your environment variables
+npm run dev
+```
+
+2. Frontend setup:
+```bash
+cd frontend
+npm install
+cp .env.example .env  # Configure your environment variables
+npm run dev
+```
+
+3. Configure Supabase:
+   - Create a new project in Supabase
+   - Enable Keycloak authentication provider
+   - Set the Realm URL to your backend URL
+
+4. Configure Concept2:
+   - Register for API access at log.concept2.com/developers
+   - Configure OAuth2 redirect URI to point to your backend callback URL
+
+## Architecture
+
+This application uses:
+- Frontend: React with TypeScript
+- Backend: Node.js/Express
+- Authentication: Concept2 OAuth2 via Supabase (using Keycloak provider)
+- Database: Supabase PostgreSQL
+
+The backend serves as a translation layer between Supabase's Keycloak provider and Concept2's OAuth2 implementation.
