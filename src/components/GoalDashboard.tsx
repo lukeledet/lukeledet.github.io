@@ -5,6 +5,7 @@ import { IconRefresh } from '@tabler/icons-react';
 import { GoalCard } from './GoalCard';
 import { GoalForm } from './GoalForm';
 import { useSupabase } from '../hooks/useSupabase';
+import { showNotification } from '@mantine/notifications';
 
 interface Goal {
   id: string;
@@ -142,10 +143,20 @@ export function GoalDashboard() {
       if (error) throw error;
 
       console.log('Sync successful:', data);
+      showNotification({
+        title: 'Sync Status',
+        message: 'Sync successful!',
+        color: 'green',
+      });
       await fetchGoals(); // Refresh goals to show updated progress
     } catch (error) {
       console.error('Error syncing workouts:', error);
       setSyncError('Failed to sync workouts. Please try again.');
+      showNotification({
+        title: 'Sync Status',
+        message: 'Failed to sync workouts. Please try again.',
+        color: 'red',
+      });
     } finally {
       setSyncing(false);
     }
@@ -213,12 +224,6 @@ export function GoalDashboard() {
         </Group>
       </Group>
 
-      {syncError && (
-        <Alert color="red" title="Sync Error" onClose={() => setSyncError(null)} withCloseButton>
-          {syncError}
-        </Alert>
-      )}
-
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
         {goals.map((goal) => (
           <GoalCard
@@ -244,4 +249,4 @@ export function GoalDashboard() {
       </Modal>
     </Stack>
   );
-} 
+}

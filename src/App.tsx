@@ -1,16 +1,18 @@
 import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SupabaseProvider } from './contexts/SupabaseContext';
 import { GoalDashboard } from './components/GoalDashboard';
 import { LandingPage } from './components/LandingPage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { Contact } from './components/Contact';
-import { AuthCallback } from './components/AuthCallback'; // Import AuthCallback
+import { AuthCallback } from './components/AuthCallback';
 import { Layout } from './components/Layout';
 import { useSupabase } from './hooks/useSupabase';
 import { useEffect, useState } from 'react';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
 import './index.css';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -49,6 +51,7 @@ function App() {
           primaryColor: 'blue',
         }}
       >
+        <Notifications />
         <div style={{ backgroundColor: 'white', minHeight: '100vh' }}>
           <Layout>
             <Routes>
@@ -60,7 +63,7 @@ function App() {
               } />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/auth/callback" element={<AuthCallback />} /> {/* Add route for AuthCallback */}
+              <Route path="/auth/callback" element={<AuthCallback />} />
             </Routes>
           </Layout>
         </div>
@@ -69,4 +72,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
