@@ -124,7 +124,6 @@ export function GoalDashboard() {
   const handleSync = async () => {
     try {
       setSyncing(true);
-      setSyncError(null);
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
@@ -150,7 +149,6 @@ export function GoalDashboard() {
       await fetchGoals(); // Refresh goals to show updated progress
     } catch (error) {
       console.error('Error syncing workouts:', error);
-      setSyncError('Failed to sync workouts. Please try again.');
       showNotification({
         title: 'Sync Status',
         message: 'Failed to sync workouts. Please try again.',
