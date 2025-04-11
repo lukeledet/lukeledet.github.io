@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SimpleGrid, Button, Group, Title, Stack, Modal, Alert } from '@mantine/core';
+import { SimpleGrid, Button, Group, Title, Stack, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconRefresh } from '@tabler/icons-react';
 import { GoalCard } from './GoalCard';
@@ -22,7 +22,6 @@ export function GoalDashboard() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [syncError, setSyncError] = useState<string | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
   const [editingGoal, setEditingGoal] = useState<string | null>(null);
 
