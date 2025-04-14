@@ -1,5 +1,4 @@
 import { Container, Group, Text, Anchor, Box, Paper } from '@mantine/core';
-import { Link } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
