@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { SupabaseProvider } from './contexts/SupabaseContext';
 import { GoalDashboard } from './components/GoalDashboard';
 import { LandingPage } from './components/LandingPage';
-import { PrivacyPolicy } from './components/PrivacyPolicy';
+// PrivacyPolicy is now static HTML
 import { Contact } from './components/Contact';
 import { AuthCallback } from './components/AuthCallback';
 import { Layout } from './components/Layout';
@@ -61,7 +61,7 @@ function App() {
                   <GoalDashboard />
                 </ProtectedRoute>
               } />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
+              {/* <Route path="/privacy" element={<PrivacyPolicy />} />  Removed, using static public/privacy.html */}
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
             </Routes>

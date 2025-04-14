@@ -21,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
               © {currentYear} Rowing Goals. All rights reserved.
             </Text>
             <Group gap="lg" justify="flex-end">
-              <Anchor component={Link} to="/privacy" size="sm" c="dimmed">
+              <Anchor component="a" href="/privacy.html" size="sm" c="dimmed">
                 Privacy Policy
               </Anchor>
               <Anchor component="a" href="/contact" size="sm" c="dimmed">
