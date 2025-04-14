@@ -34,9 +34,8 @@ export function LandingPage() {
 
   const handleLogin = async () => {
     try {
-      const siteUrl = import.meta.env.PROD 
-        ? `${window.location.origin}${import.meta.env.BASE_URL}`
-        : 'http://localhost:5173';
+      // Use VITE_SITE_URL if available, otherwise default to window.location.origin
+      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
         
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'keycloak',
@@ -119,4 +118,4 @@ export function LandingPage() {
   }
 
   return null;
-} 
+}
