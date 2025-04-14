@@ -1,4 +1,5 @@
 import { Container, Group, Text, Anchor, Box, Paper } from '@mantine/core';
+import { Link } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
               © {currentYear} Rowing Goals. All rights reserved.
             </Text>
             <Group gap="lg" justify="flex-end">
-              <Anchor component="a" href="/privacy" size="sm" c="dimmed">
+              <Anchor component={Link} to="/privacy" size="sm" c="dimmed">
                 Privacy Policy
               </Anchor>
               <Anchor component="a" href="/contact" size="sm" c="dimmed">
