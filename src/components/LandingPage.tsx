@@ -34,10 +34,14 @@ export function LandingPage() {
 
   const handleLogin = async () => {
     try {
+      const siteUrl = import.meta.env.PROD 
+        ? `${window.location.origin}${import.meta.env.BASE_URL}`
+        : 'http://localhost:5173';
+        
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'keycloak',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${siteUrl}auth/callback`,
           scopes: 'user:read results:read',
         }
       });
